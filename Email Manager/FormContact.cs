@@ -51,12 +51,6 @@ namespace Email_Manager
                 return;
             }
 
-            if (comboCategory.SelectedItem == null)
-            {
-                MessageBox.Show("Silakan pilih kategori!");
-                return;
-            }
-
             using (MySqlConnection conn = new MySqlConnection(connString))
             {
                 try
