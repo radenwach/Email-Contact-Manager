@@ -4,10 +4,10 @@ Email Contact Manager adalah aplikasi desktop yang memungkinkan pengguna untuk m
 
 ## Fitur
 
-- **Tambah Kontak**: Menambahkan kontak baru dengan informasi seperti nama, email, nomor telepon, dan catatan.
+- **Tambah Kontak**: Menambahkan kontak baru dengan informasi seperti nama, email, nomor telepon, kategori dan catatan.
 - **Edit Kontak**: Mengedit informasi kontak yang sudah ada.
 - **Hapus Kontak**: Menghapus kontak dari database.
-- **Cari Kontak**: Mencari kontak berdasarkan nama atau email.
+- **Cari Kontak**: Cari berdasarkan nama atau email, dengan opsi filter berdasarkan kategori.
 - **Tampilan Tabel**: Menampilkan semua kontak dalam format tabel yang mudah dibaca dengan fitur pencarian.
 
 ## Teknologi yang Digunakan
@@ -38,7 +38,7 @@ Email Contact Manager adalah aplikasi desktop yang memungkinkan pengguna untuk m
          name VARCHAR(255) NOT NULL,
          email VARCHAR(255) NOT NULL,
          phone VARCHAR(20),
-         notes TEXT
+         notes TEXT, category VARCHAR(100)
      );
      ```
 
@@ -60,10 +60,10 @@ Email Contact Manager adalah aplikasi desktop yang memungkinkan pengguna untuk m
 1. **Tambah Kontak**: Klik tombol "Add" untuk membuka form baru, kemudian isi nama, email, telepon, dan catatan kontak.
 2. **Edit Kontak**: Pilih kontak dari daftar, lalu klik tombol "Edit". Data kontak akan dimuat ke dalam form untuk diubah.
 3. **Hapus Kontak**: Pilih kontak dari daftar, lalu klik tombol "Delete" untuk menghapusnya dari database setelah konfirmasi.
-4. **Cari Kontak**: Gunakan kolom pencarian di bagian atas untuk mencari kontak berdasarkan nama atau email.
+4. **Cari Kontak**: Gunakan kolom search untuk mencari berdasarkan nama/email, dan filter kategori jika perlu.
 
 ## Struktur Proyek
 
 - **Form1.cs**: Form utama yang menampilkan daftar kontak dan menyediakan fungsionalitas untuk menambah, mengedit, menghapus, dan mencari kontak.
 - **FormContact.cs**: Form untuk menambah atau mengedit kontak. Ini menangani input pengguna dan menyimpan data ke dalam database.
-- **Database**: Menggunakan MySQL untuk menyimpan data kontak, dengan tabel `contacts` yang memiliki kolom `id`, `name`, `email`, `phone`, dan `notes`.
+- **Database**: Menggunakan MySQL untuk menyimpan data kontak, dengan tabel `contacts` yang memiliki kolom `id`, `name`, `email`, `phone`, `kategori` dan `notes`.
