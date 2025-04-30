@@ -8,7 +8,7 @@ namespace Email_Manager
 {
     public partial class Form1 : Form
     {
-        private string connectionString = "server=localhost;database=email_manager;uid=root;pwd=;";
+        private readonly string connectionString = "server=localhost;database=email_manager;uid=root;pwd=;";
         private MySqlConnection conn;
 
         public Form1()
@@ -51,10 +51,12 @@ namespace Email_Manager
 
                     cmbCategory.Items.Clear();
                     cmbCategory.Items.Add("All Categories");
+
                     while (reader.Read())
                     {
                         cmbCategory.Items.Add(reader.GetString("category"));
                     }
+
                     cmbCategory.SelectedIndex = 0;
                 }
             }
@@ -71,8 +73,8 @@ namespace Email_Manager
                 using (MySqlConnection connection = new MySqlConnection(connectionString))
                 {
                     connection.Open();
-                    string query = "SELECT id, name, email, phone, notes, category FROM contacts";
 
+                    string query = "SELECT id, name, email, phone, notes, category FROM contacts";
                     if (!string.IsNullOrEmpty(category) && category != "All Categories")
                     {
                         query += " WHERE category = @category";
@@ -88,33 +90,29 @@ namespace Email_Manager
                     DataTable dt = new DataTable();
                     adapter.Fill(dt);
 
-                    // Tambahkan kolom nomor urut
                     DataTable dtWithNo = dt.Copy();
                     dtWithNo.Columns.Add("No", typeof(int)).SetOrdinal(0);
+
                     for (int i = 0; i < dtWithNo.Rows.Count; i++)
                     {
                         dtWithNo.Rows[i]["No"] = i + 1;
                     }
-                    dataGridView1.DataSource = dtWithNo;
 
-                    // Sembunyikan kolom id
+                    dataGridView1.DataSource = dtWithNo;
                     dataGridView1.Columns["id"].Visible = false;
 
-                    // Pindahkan kolom notes ke paling akhir
+                    // Reorder and resize columns
                     dataGridView1.Columns["Notes"].DisplayIndex = dataGridView1.Columns.Count - 1;
-
-                    // Tampilan
-                    dataGridView1.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-                    dataGridView1.AutoResizeRows(DataGridViewAutoSizeRowsMode.AllCells);
-
                     dataGridView1.Columns["No"].Width = 40;
                     dataGridView1.Columns["No"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
                     dataGridView1.Columns["Name"].Width = 100;
                     dataGridView1.Columns["Email"].Width = 175;
                     dataGridView1.Columns["Phone"].Width = 125;
                     dataGridView1.Columns["Notes"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
+                    // Style
+                    dataGridView1.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
+                    dataGridView1.AutoResizeRows(DataGridViewAutoSizeRowsMode.AllCells);
                     dataGridView1.EnableHeadersVisualStyles = false;
                     dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.Gray;
                     dataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
@@ -213,15 +211,15 @@ namespace Email_Manager
                 using (MySqlConnection conn = new MySqlConnection(connectionString))
                 {
                     conn.Open();
-                    string query = "SELECT id, name, email, phone, notes, category FROM contacts WHERE (name LIKE @search OR email LIKE @search)";
 
+                    string query = "SELECT id, name, email, phone, notes, category FROM contacts WHERE (name LIKE @search OR email LIKE @search)";
                     if (selectedCategory != "All Categories")
                     {
                         query += " AND category = @category";
                     }
 
                     MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@search", "%" + searchText + "%");
+                    cmd.Parameters.AddWithValue("@search", $"%{searchText}%");
                     if (selectedCategory != "All Categories")
                     {
                         cmd.Parameters.AddWithValue("@category", selectedCategory);
@@ -231,17 +229,16 @@ namespace Email_Manager
                     DataTable dt = new DataTable();
                     adapter.Fill(dt);
 
-                    // Tambahkan kolom nomor urut
                     DataTable dtWithNo = dt.Copy();
                     dtWithNo.Columns.Add("No", typeof(int)).SetOrdinal(0);
                     for (int i = 0; i < dtWithNo.Rows.Count; i++)
                     {
                         dtWithNo.Rows[i]["No"] = i + 1;
                     }
-                    dataGridView1.DataSource = dtWithNo;
 
+                    dataGridView1.DataSource = dtWithNo;
                     dataGridView1.Columns["id"].Visible = false;
-                    dataGridView1.Columns["notes"].DisplayIndex = dataGridView1.Columns.Count - 1;
+                    dataGridView1.Columns["Notes"].DisplayIndex = dataGridView1.Columns.Count - 1;
                 }
             }
             catch (Exception ex)

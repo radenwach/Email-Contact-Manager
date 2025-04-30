@@ -40,7 +40,7 @@ namespace Email_Manager
             comboCategory.Items.Clear();
             comboCategory.Items.AddRange(new string[] { "Keluarga", "Teman", "Kerja", "Lainnya" });
             comboCategory.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboCategory.SelectedIndex = 0; // default
+            comboCategory.SelectedIndex = 0;
         }
 
         private void btnSave_Click(object sender, EventArgs e)
@@ -67,17 +67,19 @@ namespace Email_Manager
                         ? "INSERT INTO contacts (name, email, phone, notes, category) VALUES (@name, @email, @phone, @notes, @category)"
                         : "UPDATE contacts SET name = @name, email = @email, phone = @phone, notes = @notes, category = @category WHERE id = @id";
 
-                    MySqlCommand cmd = new MySqlCommand(query, conn);
-                    cmd.Parameters.AddWithValue("@name", txtName.Text);
-                    cmd.Parameters.AddWithValue("@email", txtEmail.Text);
-                    cmd.Parameters.AddWithValue("@phone", txtPhone.Text);
-                    cmd.Parameters.AddWithValue("@notes", txtNotes.Text);
-                    cmd.Parameters.AddWithValue("@category", comboCategory.SelectedItem.ToString());
+                    using (MySqlCommand cmd = new MySqlCommand(query, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@name", txtName.Text);
+                        cmd.Parameters.AddWithValue("@email", txtEmail.Text);
+                        cmd.Parameters.AddWithValue("@phone", txtPhone.Text);
+                        cmd.Parameters.AddWithValue("@notes", txtNotes.Text);
+                        cmd.Parameters.AddWithValue("@category", comboCategory.SelectedItem.ToString());
 
-                    if (contactId != -1)
-                        cmd.Parameters.AddWithValue("@id", contactId);
+                        if (contactId != -1)
+                            cmd.Parameters.AddWithValue("@id", contactId);
 
-                    cmd.ExecuteNonQuery();
+                        cmd.ExecuteNonQuery();
+                    }
 
                     MessageBox.Show(contactId == -1 ? "Kontak berhasil ditambahkan!" : "Kontak berhasil diperbarui!");
                     this.Close();
