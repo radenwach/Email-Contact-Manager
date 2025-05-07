@@ -37,11 +37,15 @@
             this.btnSearch = new System.Windows.Forms.Button();
             this.lblStatus = new System.Windows.Forms.Label();
             this.cmbCategory = new System.Windows.Forms.ComboBox();
+            this.btnLogout = new System.Windows.Forms.Button();
+            this.button1 = new System.Windows.Forms.Button();
+            this.btnExportExcel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
             // dataGridView1
             // 
+            this.dataGridView1.BackgroundColor = System.Drawing.SystemColors.ControlLight;
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Location = new System.Drawing.Point(12, 102);
             this.dataGridView1.Name = "dataGridView1";
@@ -131,11 +135,48 @@
             this.cmbCategory.Size = new System.Drawing.Size(181, 26);
             this.cmbCategory.TabIndex = 11;
             // 
+            // btnLogout
+            // 
+            this.btnLogout.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnLogout.Location = new System.Drawing.Point(717, 398);
+            this.btnLogout.Name = "btnLogout";
+            this.btnLogout.Size = new System.Drawing.Size(140, 33);
+            this.btnLogout.TabIndex = 12;
+            this.btnLogout.Text = "Exit";
+            this.btnLogout.UseVisualStyleBackColor = true;
+            this.btnLogout.Click += new System.EventHandler(this.btnLogout_Click);
+            // 
+            // button1
+            // 
+            this.button1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Location = new System.Drawing.Point(717, 353);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(140, 33);
+            this.button1.TabIndex = 13;
+            this.button1.Text = "Log Kontak";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.btnViewLogs_Click);
+            // 
+            // btnExportExcel
+            // 
+            this.btnExportExcel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnExportExcel.Location = new System.Drawing.Point(562, 353);
+            this.btnExportExcel.Name = "btnExportExcel";
+            this.btnExportExcel.Size = new System.Drawing.Size(140, 33);
+            this.btnExportExcel.TabIndex = 14;
+            this.btnExportExcel.Text = "Export";
+            this.btnExportExcel.UseVisualStyleBackColor = true;
+            this.btnExportExcel.Click += new System.EventHandler(this.btnExportExcel_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(867, 413);
+            this.BackColor = System.Drawing.SystemColors.InactiveCaption;
+            this.ClientSize = new System.Drawing.Size(867, 443);
+            this.Controls.Add(this.btnExportExcel);
+            this.Controls.Add(this.button1);
+            this.Controls.Add(this.btnLogout);
             this.Controls.Add(this.cmbCategory);
             this.Controls.Add(this.lblStatus);
             this.Controls.Add(this.btnSearch);
@@ -165,6 +206,9 @@
         private System.Windows.Forms.Button btnSearch;
         private System.Windows.Forms.Label lblStatus;
         private System.Windows.Forms.ComboBox cmbCategory;
+        private System.Windows.Forms.Button btnLogout;
+        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button btnExportExcel;
     }
 }
 
