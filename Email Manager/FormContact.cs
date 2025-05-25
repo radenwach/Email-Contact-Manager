@@ -1,26 +1,22 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
-using MySql.Data.MySqlClient;
 
 namespace Email_Manager
 {
     public partial class FormContact : Form
     {
         private int contactId = -1;
-        private DatabaseConnection dbConn;
 
         public FormContact()
         {
             InitializeComponent();
-            dbConn = new DatabaseConnection();
             InitializeCategoryComboBox();
         }
 
+        // Overload constructor untuk mode edit
         public FormContact(int id, string name, string email, string phone, string notes, string category)
         {
             InitializeComponent();
-            dbConn = new DatabaseConnection();
             InitializeCategoryComboBox();
 
             contactId = id;
@@ -31,11 +27,7 @@ namespace Email_Manager
             comboCategory.SelectedItem = category;
         }
 
-        private void FormContact_Load(object sender, EventArgs e)
-        {
-            this.BackColor = Color.LightGray;
-        }
-
+        // Inisialisasi kategori
         private void InitializeCategoryComboBox()
         {
             comboCategory.Items.Clear();
@@ -44,42 +36,52 @@ namespace Email_Manager
             comboCategory.SelectedIndex = 0;
         }
 
+        // Simpan kontak baru atau update yang lama
         private void btnSave_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtName.Text) || string.IsNullOrWhiteSpace(txtEmail.Text))
+            string name = txtName.Text.Trim();
+            string email = txtEmail.Text.Trim();
+            string phone = txtPhone.Text.Trim();
+            string notes = txtNotes.Text.Trim();
+            string category = comboCategory.SelectedItem.ToString();
+
+            if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email))
             {
-                MessageBox.Show("Nama dan Email tidak boleh kosong!");
+                MessageBox.Show("Nama dan Email tidak boleh kosong!", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             try
             {
                 ContactQuery query = new ContactQuery();
-                contactId = query.SaveContact(
+                int savedId = query.SaveContact(
                     contactId,
-                    txtName.Text,
-                    txtEmail.Text,
-                    txtPhone.Text,
-                    txtNotes.Text,
-                    comboCategory.SelectedItem.ToString(),
+                    name,
+                    email,
+                    phone,
+                    notes,
+                    category,
                     LoggedInUser.Username
                 );
 
-                MessageBox.Show(contactId == -1 ? "Kontak berhasil ditambahkan!" : "Kontak berhasil diperbarui!");
+                string message = contactId == -1 ? "Kontak berhasil ditambahkan!" : "Kontak berhasil diperbarui!";
+                MessageBox.Show(message, "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
                 this.Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error: " + ex.Message);
+                MessageBox.Show("Error saat menyimpan kontak: " + ex.Message, "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
+        // Tutup form tanpa menyimpan
         private void btnCancel_Click(object sender, EventArgs e)
         {
             this.Close();
         }
     }
 
+    // Menyimpan username pengguna yang login
     public static class LoggedInUser
     {
         public static string Username { get; set; }

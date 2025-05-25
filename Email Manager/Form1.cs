@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
 using ClosedXML.Excel;
-using MimeKit;
 
 namespace Email_Manager
 {
@@ -15,12 +15,11 @@ namespace Email_Manager
         {
             InitializeComponent();
             contactQuery = new ContactQuery();
+            dataGridView1.AllowUserToAddRows = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-           
-
             if (contactQuery.TestConnection())
             {
                 lblStatus.Text = "Status: Database Connected";
@@ -60,6 +59,9 @@ namespace Email_Manager
         {
             try
             {
+                if (category == "All Categories")
+                    category = "";
+
                 DataTable dt = contactQuery.GetContacts(category);
                 BindDataToGrid(dt);
             }
@@ -80,15 +82,29 @@ namespace Email_Manager
             }
 
             dataGridView1.DataSource = dtWithNo;
-            dataGridView1.Columns["id"].Visible = false;
-            dataGridView1.Columns["Notes"].DisplayIndex = dataGridView1.Columns.Count - 1;
+
+            if (dataGridView1.Columns.Contains("id"))
+                dataGridView1.Columns["id"].Visible = false;
+
+            if (dataGridView1.Columns.Contains("Notes"))
+                dataGridView1.Columns["Notes"].DisplayIndex = dataGridView1.Columns.Count - 1;
+
+            StyleGrid();
+        }
+
+        private void StyleGrid()
+        {
             dataGridView1.Columns["No"].Width = 40;
             dataGridView1.Columns["No"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
-            dataGridView1.Columns["Name"].Width = 100;
-            dataGridView1.Columns["Email"].Width = 175;
-            dataGridView1.Columns["Phone"].Width = 125;
-            dataGridView1.Columns["Notes"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
+            if (dataGridView1.Columns.Contains("Name"))
+                dataGridView1.Columns["Name"].Width = 100;
+            if (dataGridView1.Columns.Contains("Email"))
+                dataGridView1.Columns["Email"].Width = 175;
+            if (dataGridView1.Columns.Contains("Phone"))
+                dataGridView1.Columns["Phone"].Width = 125;
+            if (dataGridView1.Columns.Contains("Notes"))
+                dataGridView1.Columns["Notes"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
 
             dataGridView1.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
             dataGridView1.AutoResizeRows(DataGridViewAutoSizeRowsMode.AllCells);
@@ -106,7 +122,8 @@ namespace Email_Manager
 
             foreach (DataGridViewColumn column in dataGridView1.Columns)
             {
-                column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+                if (column.Name != "No")
+                    column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
             }
 
             dataGridView1.ReadOnly = true;
@@ -117,6 +134,7 @@ namespace Email_Manager
             FormContact form = new FormContact();
             form.ShowDialog();
             LoadContacts();
+            LoadCategories();
         }
 
         private void btnEdit_Click(object sender, EventArgs e)
@@ -134,6 +152,7 @@ namespace Email_Manager
                 FormContact form = new FormContact(id, name, email, phone, notes, category);
                 form.ShowDialog();
                 LoadContacts();
+                LoadCategories();
             }
             else
             {
@@ -153,6 +172,7 @@ namespace Email_Manager
                         contactQuery.DeleteContact(id);
                         MessageBox.Show("Kontak berhasil dihapus.");
                         LoadContacts();
+                        LoadCategories();
                     }
                     catch (Exception ex)
                     {
@@ -169,6 +189,9 @@ namespace Email_Manager
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string category = cmbCategory.SelectedItem.ToString();
+            if (category == "All Categories")
+                category = "";
+
             string keyword = txtSearch.Text;
 
             try
@@ -214,16 +237,16 @@ namespace Email_Manager
                     int row = 2;
                     foreach (DataGridViewRow dataRow in dataGridView1.Rows)
                     {
-                        if (!dataRow.IsNewRow)
-                        {
-                            ws.Cell(row, 1).Value = dataRow.Cells["Name"].Value?.ToString();
-                            ws.Cell(row, 2).Value = dataRow.Cells["Email"].Value?.ToString();
-                            ws.Cell(row, 3).Value = dataRow.Cells["Phone"].Value?.ToString();
-                            ws.Cell(row, 4).Value = dataRow.Cells["Notes"].Value?.ToString();
-                            ws.Cell(row, 5).Value = dataRow.Cells["Category"].Value?.ToString();
-                            row++;
-                        }
+                        ws.Cell(row, 1).Value = dataRow.Cells["Name"].Value?.ToString();
+                        ws.Cell(row, 2).Value = dataRow.Cells["Email"].Value?.ToString();
+                        ws.Cell(row, 3).Value = dataRow.Cells["Phone"].Value?.ToString();
+                        ws.Cell(row, 4).Value = dataRow.Cells["Notes"].Value?.ToString();
+                        ws.Cell(row, 5).Value = dataRow.Cells["Category"].Value?.ToString();
+                        row++;
                     }
+
+                    ws.Range("A1:E1").Style.Font.Bold = true;
+                    ws.Columns().AdjustToContents();
 
                     workbook.SaveAs(dialog.FileName);
                     MessageBox.Show("Kontak berhasil diekspor ke Excel.");

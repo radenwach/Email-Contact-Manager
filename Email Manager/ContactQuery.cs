@@ -13,7 +13,7 @@ namespace Email_Manager
             dbConn = new DatabaseConnection();
         }
 
-        // ✅ Menyimpan / Update kontak dan log perubahan
+       
         public int SaveContact(int contactId, string name, string email, string phone, string notes, string category, string username)
         {
             int savedContactId = contactId;
@@ -90,7 +90,7 @@ namespace Email_Manager
             return savedContactId;
         }
 
-        // ✅ Ambil semua kategori
+      
         public DataTable GetCategories()
         {
             DataTable dt = new DataTable();
@@ -110,7 +110,7 @@ namespace Email_Manager
             return dt;
         }
 
-        // ✅ Ambil semua kontak / berdasarkan kategori
+        
         public DataTable GetContacts(string category = "")
         {
             DataTable dt = new DataTable();
@@ -137,7 +137,7 @@ namespace Email_Manager
             return dt;
         }
 
-        // ✅ Cari kontak berdasarkan nama/email & filter kategori
+       
         public DataTable SearchContacts(string searchText, string category = "")
         {
             DataTable dt = new DataTable();
@@ -166,7 +166,7 @@ namespace Email_Manager
             return dt;
         }
 
-        // ✅ Hapus kontak
+        
         public void DeleteContact(int id)
         {
             try
@@ -184,7 +184,7 @@ namespace Email_Manager
             }
         }
 
-        // ✅ Cek koneksi database
+    
         public bool TestConnection()
         {
             try
@@ -202,7 +202,7 @@ namespace Email_Manager
             }
         }
 
-        // ✅ Ambil semua log perubahan kontak
+    
         public DataTable GetContactLogs()
         {
             DataTable dt = new DataTable();

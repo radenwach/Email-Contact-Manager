@@ -5,47 +5,24 @@ namespace Email_Manager
 {
     public class UserQuery
     {
-        private MySqlConnection connection;
+        private DatabaseConnection db;
 
-        // Constructor untuk menginisialisasi koneksi
         public UserQuery()
         {
-            string connectionString = "Server=localhost;Database=email_manager;Uid=root;Pwd="; // Sesuaikan dengan konfigurasi MySQL Anda
-            connection = new MySqlConnection(connectionString);
+            db = new DatabaseConnection();
         }
 
-        // Method untuk membuka koneksi
-        public void OpenConnection()
-        {
-            if (connection.State == System.Data.ConnectionState.Closed)
-            {
-                connection.Open();
-            }
-        }
-
-        // Method untuk menutup koneksi
-        public void CloseConnection()
-        {
-            if (connection.State == System.Data.ConnectionState.Open)
-            {
-                connection.Close();
-            }
-        }
-
-        // Method untuk memeriksa login
         public bool CheckLogin(string username, string password)
         {
             try
             {
-                OpenConnection();
-
+                db.Open();
                 string query = "SELECT COUNT(*) FROM users WHERE username = @username AND password = @password";
-                MySqlCommand cmd = new MySqlCommand(query, connection);
+                MySqlCommand cmd = new MySqlCommand(query, db.GetConnection());
                 cmd.Parameters.AddWithValue("@username", username);
                 cmd.Parameters.AddWithValue("@password", password);
 
                 int count = Convert.ToInt32(cmd.ExecuteScalar());
-
                 return count > 0;
             }
             catch (Exception ex)
@@ -54,7 +31,7 @@ namespace Email_Manager
             }
             finally
             {
-                CloseConnection();
+                db.Close();
             }
         }
     }

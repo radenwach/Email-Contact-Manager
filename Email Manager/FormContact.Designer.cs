@@ -173,7 +173,6 @@
             this.Controls.Add(this.label1);
             this.Name = "FormContact";
             this.Text = "Form Tambah";
-            this.Load += new System.EventHandler(this.FormContact_Load);
             this.ResumeLayout(false);
             this.PerformLayout();
 
