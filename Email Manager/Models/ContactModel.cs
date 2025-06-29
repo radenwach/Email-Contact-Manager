@@ -2,6 +2,7 @@
 using System.Data;
 using MySql.Data.MySqlClient;
 
+
 namespace Email_Manager.Models
 {
     public class ContactModel

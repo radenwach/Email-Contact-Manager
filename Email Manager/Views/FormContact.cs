@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Forms;
+using Email_Manager.Models; // tambahkan ini
 
 namespace Email_Manager
 {
@@ -53,8 +54,8 @@ namespace Email_Manager
 
             try
             {
-                ContactQuery query = new ContactQuery();
-                int savedId = query.SaveContact(
+                ContactModel model = new ContactModel(); // ganti dari ContactQuery
+                int savedId = model.SaveContact(
                     contactId,
                     name,
                     email,

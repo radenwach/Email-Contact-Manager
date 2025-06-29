@@ -2,18 +2,19 @@
 using System.Data;
 using System.Drawing;
 using System.Windows.Forms;
+using Email_Manager.Models;
 
 namespace Email_Manager
 {
     public partial class FormContactLogs : Form
     {
-        private ContactQuery logQuery;
+        private ContactModel logQuery;
         private DataGridView dgvLogs;
 
         public FormContactLogs()
         {
             InitializeComponent();
-            logQuery = new ContactQuery();
+            logQuery = new ContactModel();
             InitializeLogGrid();
         }
 

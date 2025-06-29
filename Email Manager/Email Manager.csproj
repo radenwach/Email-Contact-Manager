@@ -148,33 +148,32 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\ContactControllercs.cs" />
+    <Compile Include="Controllers\ContactController.cs" />
     <Compile Include="Models\ContactModel.cs" />
-    <Compile Include="ContactQuery.cs" />
-    <Compile Include="DatabaseConnection.cs" />
-    <Compile Include="UserQuery.cs" />
+    <Compile Include="Helpers\DatabaseConnection.cs" />
+    <Compile Include="Models\UserQuery.cs" />
     <Compile Include="Views\Form1.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="Views\Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormContact.cs">
+    <Compile Include="Views\FormContact.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormContact.Designer.cs">
+    <Compile Include="Views\FormContact.Designer.cs">
       <DependentUpon>FormContact.cs</DependentUpon>
     </Compile>
-    <Compile Include="FormContactLogs.cs">
+    <Compile Include="Views\FormContactLogs.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="FormContactLogs.Designer.cs">
+    <Compile Include="Views\FormContactLogs.Designer.cs">
       <DependentUpon>FormContactLogs.cs</DependentUpon>
     </Compile>
-    <Compile Include="Formlogin.cs">
+    <Compile Include="Views\Formlogin.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Formlogin.Designer.cs">
+    <Compile Include="Views\Formlogin.Designer.cs">
       <DependentUpon>Formlogin.cs</DependentUpon>
     </Compile>
     <Compile Include="Program.cs" />
@@ -182,13 +181,13 @@
     <EmbeddedResource Include="Views\Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormContact.resx">
+    <EmbeddedResource Include="Views\FormContact.resx">
       <DependentUpon>FormContact.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="FormContactLogs.resx">
+    <EmbeddedResource Include="Views\FormContactLogs.resx">
       <DependentUpon>FormContactLogs.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Formlogin.resx">
+    <EmbeddedResource Include="Views\Formlogin.resx">
       <DependentUpon>Formlogin.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
