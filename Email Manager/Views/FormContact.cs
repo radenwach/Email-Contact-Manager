@@ -1,23 +1,36 @@
 ﻿using System;
+using System.Drawing;
+using System.IO;
 using System.Windows.Forms;
-using Email_Manager.Models; // tambahkan ini
+using Email_Manager.Models;
 
 namespace Email_Manager
 {
     public partial class FormContact : Form
     {
+        private string selectedPhotoPath = "";
+
         private int contactId = -1;
 
         public FormContact()
         {
             InitializeComponent();
+            InitializePhotoComponents();
             InitializeCategoryComboBox();
         }
 
         // Overload constructor untuk mode edit
-        public FormContact(int id, string name, string email, string phone, string notes, string category)
+        public FormContact(int id, string name, string email, string phone, string notes, string category, string photoPath)
         {
             InitializeComponent();
+            InitializePhotoComponents();
+
+            selectedPhotoPath = photoPath;
+            if (!string.IsNullOrEmpty(photoPath) && File.Exists(photoPath))
+            {
+                picPhoto.Image = Image.FromFile(photoPath);
+            }
+
             InitializeCategoryComboBox();
 
             contactId = id;
@@ -28,7 +41,59 @@ namespace Email_Manager
             comboCategory.SelectedItem = category;
         }
 
-        // Inisialisasi kategori
+        // Komponen gambar & tombol upload
+        private void InitializePhotoComponents()
+        {
+        }
+
+        // Upload gambar
+        private void BtnUploadPhoto_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog ofd = new OpenFileDialog())
+            {
+                ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
+                if (ofd.ShowDialog() == DialogResult.OK)
+                {
+                    FileInfo fileInfo = new FileInfo(ofd.FileName);
+                    if (fileInfo.Length > 1_000_000) // max 1 MB
+                    {
+                        MessageBox.Show("Ukuran gambar maksimal 1 MB.", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                        return;
+                    }
+
+                    selectedPhotoPath = ofd.FileName;
+                    picPhoto.Image = Image.FromFile(selectedPhotoPath);
+                }
+            }
+        }
+
+        // Salin gambar ke folder lokal dan kembalikan path barunya
+        private string CopyPhotoToLocalFolder(string originalPath)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(originalPath) || !File.Exists(originalPath))
+                    return "";
+
+                string appPath = Application.StartupPath;
+                string photoDir = Path.Combine(appPath, "images");
+
+                if (!Directory.Exists(photoDir))
+                    Directory.CreateDirectory(photoDir);
+
+                string fileName = Path.GetFileName(originalPath);
+                string newPath = Path.Combine(photoDir, fileName);
+
+                File.Copy(originalPath, newPath, true); // overwrite if exists
+                return newPath;
+            }
+            catch
+            {
+                return "";
+            }
+        }
+
+        // Combo kategori
         private void InitializeCategoryComboBox()
         {
             comboCategory.Items.Clear();
@@ -37,7 +102,7 @@ namespace Email_Manager
             comboCategory.SelectedIndex = 0;
         }
 
-        // Simpan kontak baru atau update yang lama
+        // Simpan atau update kontak
         private void btnSave_Click(object sender, EventArgs e)
         {
             string name = txtName.Text.Trim();
@@ -54,7 +119,9 @@ namespace Email_Manager
 
             try
             {
-                ContactModel model = new ContactModel(); // ganti dari ContactQuery
+                string photoPathToSave = CopyPhotoToLocalFolder(selectedPhotoPath);
+
+                ContactModel model = new ContactModel();
                 int savedId = model.SaveContact(
                     contactId,
                     name,
@@ -62,6 +129,7 @@ namespace Email_Manager
                     phone,
                     notes,
                     category,
+                    photoPathToSave,
                     LoggedInUser.Username
                 );
 
@@ -75,14 +143,19 @@ namespace Email_Manager
             }
         }
 
-        // Tutup form tanpa menyimpan
+        // Tutup form
         private void btnCancel_Click(object sender, EventArgs e)
         {
             this.Close();
         }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 
-    // Menyimpan username pengguna yang login
+    // Data login user
     public static class LoggedInUser
     {
         public static string Username { get; set; }

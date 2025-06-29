@@ -59,7 +59,7 @@ namespace Email_Manager.Models
                 MySqlConnection conn = dbConn.GetConnection();
                 dbConn.Open();
 
-                string query = "SELECT id, name, email, phone, notes, category FROM contacts";
+                string query = "SELECT id, name, email, phone, notes, category, photo_path FROM contacts";
                 if (!string.IsNullOrEmpty(category) && category != "All Categories")
                     query += " WHERE category = @category";
 
@@ -85,7 +85,7 @@ namespace Email_Manager.Models
                 MySqlConnection conn = dbConn.GetConnection();
                 dbConn.Open();
 
-                string query = "SELECT id, name, email, phone, notes, category FROM contacts WHERE (name LIKE @keyword OR email LIKE @keyword)";
+                string query = "SELECT id, name, email, phone, notes, category, photo_path FROM contacts WHERE (name LIKE @keyword OR email LIKE @keyword)";
                 if (!string.IsNullOrEmpty(category) && category != "All Categories")
                     query += " AND category = @category";
 
@@ -105,7 +105,7 @@ namespace Email_Manager.Models
             return dt;
         }
 
-        public int SaveContact(int contactId, string name, string email, string phone, string notes, string category, string username)
+        public int SaveContact(int contactId, string name, string email, string phone, string notes, string category, string photoPath, string username)
         {
             int savedContactId = contactId;
             try
@@ -118,14 +118,14 @@ namespace Email_Manager.Models
 
                 if (contactId == -1)
                 {
-                    query = "INSERT INTO contacts (name, email, phone, notes, category, created_at, updated_at) " +
-                            "VALUES (@name, @email, @phone, @notes, @category, @created_at, @updated_at)";
+                    query = "INSERT INTO contacts (name, email, phone, notes, category, photo_path, created_at, updated_at) " +
+                            "VALUES (@name, @email, @phone, @notes, @category, @photo_path, @created_at, @updated_at)";
                     action = "Tambah";
                 }
                 else
                 {
                     query = "UPDATE contacts SET name = @name, email = @email, phone = @phone, notes = @notes, " +
-                            "category = @category, updated_at = @updated_at WHERE id = @id";
+                            "category = @category, photo_path = @photo_path, updated_at = @updated_at WHERE id = @id";
                     action = "Update";
                 }
 
@@ -136,6 +136,7 @@ namespace Email_Manager.Models
                     cmd.Parameters.AddWithValue("@phone", phone);
                     cmd.Parameters.AddWithValue("@notes", notes);
                     cmd.Parameters.AddWithValue("@category", category);
+                    cmd.Parameters.AddWithValue("@photo_path", photoPath);
                     cmd.Parameters.AddWithValue("@updated_at", DateTime.Now);
 
                     if (contactId == -1)
@@ -157,7 +158,7 @@ namespace Email_Manager.Models
                 }
 
                 // Log perubahan
-                string description = $"Nama: {name}, Email: {email}, Phone: {phone}, Category: {category}";
+                string description = $"Nama: {name}, Email: {email}, Phone: {phone}, Category: {category}, Photo: {photoPath}";
                 string logQuery = "INSERT INTO contact_logs (contact_id, action, changed_by, changed_at, description) " +
                                   "VALUES (@contact_id, @action, @changed_by, @changed_at, @description)";
                 using (MySqlCommand logCmd = new MySqlCommand(logQuery, connection))
@@ -180,6 +181,7 @@ namespace Email_Manager.Models
 
             return savedContactId;
         }
+
 
         public void DeleteContact(int id)
         {

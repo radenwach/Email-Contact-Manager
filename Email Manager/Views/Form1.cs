@@ -10,16 +10,29 @@ namespace Email_Manager.Views
     public partial class Form1 : Form
     {
         private ContactController controller;
+        private PictureBox picPhoto;
+        private DataTable originalData; // Menyimpan data asli lengkap
+
 
         public Form1()
         {
             InitializeComponent();
+            picPhoto = new PictureBox();
+            picPhoto.Size = new Size(150, 150);
+            picPhoto.Location = new Point(dataGridView1.Right + 10, dataGridView1.Top);
+            picPhoto.BorderStyle = BorderStyle.FixedSingle;
+            picPhoto.SizeMode = PictureBoxSizeMode.Zoom;
+            this.Controls.Add(picPhoto);
+
             controller = new ContactController();
             dataGridView1.AllowUserToAddRows = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            dataGridView1.SelectionChanged += dataGridView1_SelectionChanged;
+            dataGridView1.CellDoubleClick += dataGridView1_CellDoubleClick;
+
             if (controller.CheckDatabaseConnection())
             {
                 lblStatus.Text = "Status: Database Connected";
@@ -51,67 +64,110 @@ namespace Email_Manager.Views
         private void LoadContacts(string category = "")
         {
             if (category == "All Categories") category = "";
-            DataTable dt = controller.GetAllContacts(category);
-            BindDataToGrid(dt);
+            originalData = controller.GetAllContacts(category);
+            BindDataToGrid(originalData);
         }
+
 
         private void BindDataToGrid(DataTable dt)
         {
-            DataTable dtWithNo = dt.Copy();
-            dtWithNo.Columns.Add("No", typeof(int)).SetOrdinal(0);
+            DataTable dtWithNo = new DataTable();
+            dtWithNo.Columns.Add("No", typeof(int));
+            dtWithNo.Columns.Add("Name", typeof(string));
+            dtWithNo.Columns.Add("Email", typeof(string));
 
-            for (int i = 0; i < dtWithNo.Rows.Count; i++)
+            for (int i = 0; i < dt.Rows.Count; i++)
             {
-                dtWithNo.Rows[i]["No"] = i + 1;
+                DataRow sourceRow = dt.Rows[i];
+                DataRow newRow = dtWithNo.NewRow();
+                newRow["No"] = i + 1;
+                newRow["Name"] = sourceRow["Name"];
+                newRow["Email"] = sourceRow["Email"];
+                dtWithNo.Rows.Add(newRow);
             }
 
             dataGridView1.DataSource = dtWithNo;
 
-            if (dataGridView1.Columns.Contains("id"))
-                dataGridView1.Columns["id"].Visible = false;
-
-            if (dataGridView1.Columns.Contains("Notes"))
-                dataGridView1.Columns["Notes"].DisplayIndex = dataGridView1.Columns.Count - 1;
-
             StyleGrid();
         }
 
+
+
+
         private void StyleGrid()
         {
-            dataGridView1.Columns["No"].Width = 40;
-            dataGridView1.Columns["No"].DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
-
-            if (dataGridView1.Columns.Contains("Name"))
-                dataGridView1.Columns["Name"].Width = 100;
-            if (dataGridView1.Columns.Contains("Email"))
-                dataGridView1.Columns["Email"].Width = 175;
-            if (dataGridView1.Columns.Contains("Phone"))
-                dataGridView1.Columns["Phone"].Width = 125;
-            if (dataGridView1.Columns.Contains("Notes"))
-                dataGridView1.Columns["Notes"].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
-
-            dataGridView1.AutoResizeColumns(DataGridViewAutoSizeColumnsMode.AllCells);
-            dataGridView1.AutoResizeRows(DataGridViewAutoSizeRowsMode.AllCells);
-
+            // Atur properti umum
             dataGridView1.EnableHeadersVisualStyles = false;
+            dataGridView1.ReadOnly = true;
+
+            // Gaya header kolom
             dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.Gray;
             dataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             dataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
+            // Gaya baris
             dataGridView1.RowsDefaultCellStyle.BackColor = Color.LightGray;
             dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.White;
             dataGridView1.DefaultCellStyle.SelectionBackColor = Color.SteelBlue;
             dataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
 
+            // Lebar kolom otomatis agar memenuhi tabel
             foreach (DataGridViewColumn column in dataGridView1.Columns)
             {
-                if (column.Name != "No")
+                if (column.Name == "No")
+                {
+                    column.Width = 40;
+                    column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
+                }
+                else
+                {
+                    column.AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
                     column.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleLeft;
+                }
             }
-
-            dataGridView1.ReadOnly = true;
         }
+
+
+        private void dataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedRows.Count > 0)
+            {
+                var row = dataGridView1.SelectedRows[0];
+                if (dataGridView1.Columns.Contains("photo_path"))
+                {
+                    string photoPath = row.Cells["photo_path"].Value?.ToString();
+                    if (!string.IsNullOrEmpty(photoPath) && System.IO.File.Exists(photoPath))
+                    {
+                        picPhoto.Image = Image.FromFile(photoPath);
+                    }
+                    else
+                    {
+                        picPhoto.Image = null; // default image or blank
+                    }
+                }
+            }
+        }
+
+        private void dataGridView1_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex >= 0 && originalData != null && e.RowIndex < originalData.Rows.Count)
+            {
+                DataRow row = originalData.Rows[e.RowIndex];
+
+                string name = row["Name"].ToString();
+                string email = row["Email"].ToString();
+                string phone = row["Phone"].ToString();
+                string notes = row["Notes"].ToString();
+                string category = row["Category"].ToString();
+                string photoPath = row["photo_path"].ToString();
+
+                FormContactDetail detailForm = new FormContactDetail(name, email, phone, notes, category, photoPath);
+                detailForm.ShowDialog();
+            }
+        }
+
+
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
@@ -125,18 +181,24 @@ namespace Email_Manager.Views
         {
             if (dataGridView1.SelectedRows.Count > 0)
             {
-                DataGridViewRow row = dataGridView1.SelectedRows[0];
-                int id = Convert.ToInt32(row.Cells["id"].Value);
-                string name = row.Cells["Name"].Value.ToString();
-                string email = row.Cells["Email"].Value.ToString();
-                string phone = row.Cells["Phone"].Value.ToString();
-                string notes = row.Cells["Notes"].Value.ToString();
-                string category = row.Cells["Category"].Value.ToString();
+                int selectedIndex = dataGridView1.SelectedRows[0].Index;
+                if (selectedIndex < originalData.Rows.Count)
+                {
+                    DataRow row = originalData.Rows[selectedIndex];
 
-                FormContact form = new FormContact(id, name, email, phone, notes, category);
-                form.ShowDialog();
-                LoadContacts();
-                LoadCategories();
+                    int id = Convert.ToInt32(row["id"]);
+                    string name = row["Name"].ToString();
+                    string email = row["Email"].ToString();
+                    string phone = row["Phone"].ToString();
+                    string notes = row["Notes"].ToString();
+                    string category = row["Category"].ToString();
+                    string photoPath = row["photo_path"].ToString();
+
+                    FormContact form = new FormContact(id, name, email, phone, notes, category, photoPath);
+                    form.ShowDialog();
+                    LoadContacts();
+                    LoadCategories();
+                }
             }
             else
             {
@@ -144,15 +206,21 @@ namespace Email_Manager.Views
             }
         }
 
+
         private void btnDelete_Click(object sender, EventArgs e)
         {
             if (dataGridView1.SelectedRows.Count > 0)
             {
-                int id = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["id"].Value);
-                if (MessageBox.Show("Hapus kontak?", "Konfirmasi", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                int selectedIndex = dataGridView1.SelectedRows[0].Index;
+                if (selectedIndex < originalData.Rows.Count)
                 {
-                    controller.DeleteContactById(id);
-                    LoadContacts();
+                    int id = Convert.ToInt32(originalData.Rows[selectedIndex]["id"]);
+
+                    if (MessageBox.Show("Hapus kontak?", "Konfirmasi", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                    {
+                        controller.DeleteContactById(id);
+                        LoadContacts();
+                    }
                 }
             }
             else
@@ -160,6 +228,7 @@ namespace Email_Manager.Views
                 MessageBox.Show("Pilih kontak yang ingin dihapus.");
             }
         }
+
 
         private void btnSearch_Click(object sender, EventArgs e)
         {
@@ -194,6 +263,7 @@ namespace Email_Manager.Views
                     var workbook = new XLWorkbook();
                     var ws = workbook.Worksheets.Add("Contacts");
 
+                    // Header
                     ws.Cell(1, 1).Value = "Name";
                     ws.Cell(1, 2).Value = "Email";
                     ws.Cell(1, 3).Value = "Phone";
@@ -201,13 +271,13 @@ namespace Email_Manager.Views
                     ws.Cell(1, 5).Value = "Category";
 
                     int row = 2;
-                    foreach (DataGridViewRow dataRow in dataGridView1.Rows)
+                    foreach (DataRow dataRow in originalData.Rows)
                     {
-                        ws.Cell(row, 1).Value = dataRow.Cells["Name"].Value?.ToString();
-                        ws.Cell(row, 2).Value = dataRow.Cells["Email"].Value?.ToString();
-                        ws.Cell(row, 3).Value = dataRow.Cells["Phone"].Value?.ToString();
-                        ws.Cell(row, 4).Value = dataRow.Cells["Notes"].Value?.ToString();
-                        ws.Cell(row, 5).Value = dataRow.Cells["Category"].Value?.ToString();
+                        ws.Cell(row, 1).Value = dataRow["Name"].ToString();
+                        ws.Cell(row, 2).Value = dataRow["Email"].ToString();
+                        ws.Cell(row, 3).Value = dataRow["Phone"].ToString();
+                        ws.Cell(row, 4).Value = dataRow["Notes"].ToString();
+                        ws.Cell(row, 5).Value = dataRow["Category"].ToString();
                         row++;
                     }
 
@@ -223,5 +293,6 @@ namespace Email_Manager.Views
                 }
             }
         }
+
     }
 }

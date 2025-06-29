@@ -20,8 +20,8 @@ namespace Email_Manager.Controllers
 
         public DataTable SearchContacts(string keyword, string category) => model.SearchContacts(keyword, category);
 
-        public int SaveContact(int contactId, string name, string email, string phone, string notes, string category, string username)
-            => model.SaveContact(contactId, name, email, phone, notes, category, username);
+        public int SaveContact(int contactId, string name, string email, string phone, string notes, string category, string photoPath, string username)
+            => model.SaveContact(contactId, name, email, phone, notes, category, photoPath, username);
 
         public void DeleteContactById(int id) => model.DeleteContact(id);
 

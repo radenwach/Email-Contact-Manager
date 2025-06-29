@@ -164,6 +164,9 @@
     <Compile Include="Views\FormContact.Designer.cs">
       <DependentUpon>FormContact.cs</DependentUpon>
     </Compile>
+    <Compile Include="Views\FormContactDetail.cs">
+      <SubType>Form</SubType>
+    </Compile>
     <Compile Include="Views\FormContactLogs.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -183,6 +186,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Views\FormContact.resx">
       <DependentUpon>FormContact.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FormContactDetail.resx">
+      <DependentUpon>FormContactDetail.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\FormContactLogs.resx">
       <DependentUpon>FormContactLogs.cs</DependentUpon>
