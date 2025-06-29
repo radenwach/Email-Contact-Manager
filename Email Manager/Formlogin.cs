@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
+using Email_Manager.Views;
+
 
 namespace Email_Manager
 {

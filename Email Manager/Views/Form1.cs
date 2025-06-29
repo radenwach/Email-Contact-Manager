@@ -1,26 +1,26 @@
 ﻿using System;
 using System.Data;
 using System.Drawing;
-using System.IO;
 using System.Windows.Forms;
 using ClosedXML.Excel;
+using Email_Manager.Controllers;
 
-namespace Email_Manager
+namespace Email_Manager.Views
 {
     public partial class Form1 : Form
     {
-        private ContactQuery contactQuery;
+        private ContactController controller;
 
         public Form1()
         {
             InitializeComponent();
-            contactQuery = new ContactQuery();
+            controller = new ContactController();
             dataGridView1.AllowUserToAddRows = false;
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            if (contactQuery.TestConnection())
+            if (controller.CheckDatabaseConnection())
             {
                 lblStatus.Text = "Status: Database Connected";
                 lblStatus.ForeColor = Color.Green;
@@ -29,46 +29,30 @@ namespace Email_Manager
             }
             else
             {
-                lblStatus.Text = "Status: Failed to connect to database";
+                lblStatus.Text = "Status: Database Not Connected";
                 lblStatus.ForeColor = Color.Red;
             }
         }
 
         private void LoadCategories()
         {
-            try
-            {
-                DataTable dt = contactQuery.GetCategories();
-                cmbCategory.Items.Clear();
-                cmbCategory.Items.Add("All Categories");
+            DataTable dt = controller.GetAllCategories();
+            cmbCategory.Items.Clear();
+            cmbCategory.Items.Add("All Categories");
 
-                foreach (DataRow row in dt.Rows)
-                {
-                    cmbCategory.Items.Add(row["category"].ToString());
-                }
-
-                cmbCategory.SelectedIndex = 0;
-            }
-            catch (Exception ex)
+            foreach (DataRow row in dt.Rows)
             {
-                MessageBox.Show("Error loading categories: " + ex.Message);
+                cmbCategory.Items.Add(row["category"].ToString());
             }
+
+            cmbCategory.SelectedIndex = 0;
         }
 
         private void LoadContacts(string category = "")
         {
-            try
-            {
-                if (category == "All Categories")
-                    category = "";
-
-                DataTable dt = contactQuery.GetContacts(category);
-                BindDataToGrid(dt);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error loading contacts: " + ex.Message);
-            }
+            if (category == "All Categories") category = "";
+            DataTable dt = controller.GetAllContacts(category);
+            BindDataToGrid(dt);
         }
 
         private void BindDataToGrid(DataTable dt)
@@ -164,20 +148,11 @@ namespace Email_Manager
         {
             if (dataGridView1.SelectedRows.Count > 0)
             {
-                if (MessageBox.Show("Yakin ingin menghapus kontak ini?", "Konfirmasi", MessageBoxButtons.YesNo) == DialogResult.Yes)
+                int id = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["id"].Value);
+                if (MessageBox.Show("Hapus kontak?", "Konfirmasi", MessageBoxButtons.YesNo) == DialogResult.Yes)
                 {
-                    int id = Convert.ToInt32(dataGridView1.SelectedRows[0].Cells["id"].Value);
-                    try
-                    {
-                        contactQuery.DeleteContact(id);
-                        MessageBox.Show("Kontak berhasil dihapus.");
-                        LoadContacts();
-                        LoadCategories();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Gagal hapus: " + ex.Message);
-                    }
+                    controller.DeleteContactById(id);
+                    LoadContacts();
                 }
             }
             else
@@ -189,20 +164,11 @@ namespace Email_Manager
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string category = cmbCategory.SelectedItem.ToString();
-            if (category == "All Categories")
-                category = "";
+            if (category == "All Categories") category = "";
 
             string keyword = txtSearch.Text;
-
-            try
-            {
-                DataTable dt = contactQuery.SearchContacts(keyword, category);
-                BindDataToGrid(dt);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error search: " + ex.Message);
-            }
+            DataTable dt = controller.SearchContacts(keyword, category);
+            BindDataToGrid(dt);
         }
 
         private void btnLogout_Click(object sender, EventArgs e)
