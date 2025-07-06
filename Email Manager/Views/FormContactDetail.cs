@@ -7,6 +7,9 @@ namespace Email_Manager.Views
 {
     public partial class FormContactDetail : Form
     {
+        // Buat font global untuk digunakan semua kontrol
+        private readonly Font _segoeFont = new Font("Segoe UI Semibold", 9f, FontStyle.Bold, GraphicsUnit.Point);
+
         public FormContactDetail(string name, string email, string phone, string notes, string category, string photoPath)
         {
             this.Text = "Detail Kontak";
@@ -16,10 +19,10 @@ namespace Email_Manager.Views
             // PictureBox untuk foto
             PictureBox picPhoto = new PictureBox()
             {
-                Left = 330,
+                Left = 310,
                 Top = 20,
-                Width = 120,
-                Height = 120,
+                Width = 159,
+                Height = 150,
                 BorderStyle = BorderStyle.FixedSingle,
                 SizeMode = PictureBoxSizeMode.Zoom
             };
@@ -31,30 +34,120 @@ namespace Email_Manager.Views
             }
             else
             {
-                // Tampilkan default avatar dari resource
-                picPhoto.Image = Properties.Resources.default_avatar; // Pastikan nama file-nya cocok di Resources
+                picPhoto.Image = Properties.Resources.default_avatar;
             }
 
-            // Label-label
-            Label lblName = new Label() { Text = "Nama :", Left = 20, Top = 20, Width = 100 };
-            Label lblEmail = new Label() { Text = "Email :", Left = 20, Top = 50, Width = 100 };
-            Label lblPhone = new Label() { Text = "Telepon :", Left = 20, Top = 80, Width = 100 };
-            Label lblNotes = new Label() { Text = "Catatan :", Left = 20, Top = 110, Width = 100 };
-            Label lblCategory = new Label() { Text = "Kategori :", Left = 20, Top = 140, Width = 100 };
+            // Label-label dengan font yang konsisten
+            Label lblName = new Label()
+            {
+                Text = "Nama :",
+                Left = 20,
+                Top = 20,
+                Width = 100,
+                Font = _segoeFont
+            };
 
-            Label valName = new Label() { Text = name, Left = 130, Top = 20, Width = 180 };
-            Label valEmail = new Label() { Text = email, Left = 130, Top = 50, Width = 180 };
-            Label valPhone = new Label() { Text = phone, Left = 130, Top = 80, Width = 180 };
-            Label valNotes = new Label() { Text = notes, Left = 130, Top = 110, Width = 180 };
-            Label valCategory = new Label() { Text = category, Left = 130, Top = 140, Width = 180 };
+            Label lblEmail = new Label()
+            {
+                Text = "Email :",
+                Left = 20,
+                Top = 50,
+                Width = 100,
+                Font = _segoeFont
+            };
+
+            Label lblPhone = new Label()
+            {
+                Text = "Telepon :",
+                Left = 20,
+                Top = 80,
+                Width = 100,
+                Font = _segoeFont
+            };
+
+            Label lblNotes = new Label()
+            {
+                Text = "Catatan :",
+                Left = 20,
+                Top = 110,
+                Width = 100,
+                Font = _segoeFont
+            };
+
+            Label lblCategory = new Label()
+            {
+                Text = "Kategori :",
+                Left = 20,
+                Top = 140,
+                Width = 100,
+                Font = _segoeFont
+            };
+
+            // Value labels dengan font yang sama
+            Label valName = new Label()
+            {
+                Text = name,
+                Left = 130,
+                Top = 20,
+                Width = 180,
+                Font = _segoeFont
+            };
+
+            Label valEmail = new Label()
+            {
+                Text = email,
+                Left = 130,
+                Top = 50,
+                Width = 180,
+                Font = _segoeFont
+            };
+
+            Label valPhone = new Label()
+            {
+                Text = phone,
+                Left = 130,
+                Top = 80,
+                Width = 180,
+                Font = _segoeFont
+            };
+
+            Label valNotes = new Label()
+            {
+                Text = notes,
+                Left = 130,
+                Top = 110,
+                Width = 180,
+                Font = _segoeFont
+            };
+
+            Label valCategory = new Label()
+            {
+                Text = category,
+                Left = 130,
+                Top = 140,
+                Width = 180,
+                Font = _segoeFont
+            };
 
             // Tambahkan ke form
-            this.Controls.Add(lblName); this.Controls.Add(valName);
-            this.Controls.Add(lblEmail); this.Controls.Add(valEmail);
-            this.Controls.Add(lblPhone); this.Controls.Add(valPhone);
-            this.Controls.Add(lblNotes); this.Controls.Add(valNotes);
-            this.Controls.Add(lblCategory); this.Controls.Add(valCategory);
-            this.Controls.Add(picPhoto);
+            this.Controls.AddRange(new Control[] {
+                lblName, valName,
+                lblEmail, valEmail,
+                lblPhone, valPhone,
+                lblNotes, valNotes,
+                lblCategory, valCategory,
+                picPhoto
+            });
+        }
+
+        // Bersihkan resource font ketika form di dispose
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                _segoeFont?.Dispose();
+            }
+            base.Dispose(disposing);
         }
     }
 }

@@ -5,29 +5,29 @@ namespace Email_Manager
 {
     public class DatabaseConnection
     {
-        private string connectionString = "server=localhost;database=email_manager;uid=root;pwd=;";
-        private MySqlConnection connection;
+        private const string _connectionString = "server=localhost;database=email_manager;uid=root;pwd=;";
+        private readonly MySqlConnection _connection;
 
         public DatabaseConnection()
         {
-            connection = new MySqlConnection(connectionString);
+            _connection = new MySqlConnection(_connectionString);
         }
 
-        public MySqlConnection GetConnection()
-        {
-            return connection;
-        }
+        // Mengambil objek koneksi
+        public MySqlConnection GetConnection() => _connection;
 
+        // Membuka koneksi jika tertutup
         public void Open()
         {
-            if (connection.State == System.Data.ConnectionState.Closed)
-                connection.Open();
+            if (_connection.State == System.Data.ConnectionState.Closed)
+                _connection.Open();
         }
 
+        // Menutup koneksi jika terbuka
         public void Close()
         {
-            if (connection.State == System.Data.ConnectionState.Open)
-                connection.Close();
+            if (_connection.State == System.Data.ConnectionState.Open)
+                _connection.Close();
         }
     }
 }

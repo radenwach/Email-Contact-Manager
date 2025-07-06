@@ -5,33 +5,43 @@ namespace Email_Manager
 {
     public class UserQuery
     {
-        private DatabaseConnection db;
+        // Gunakan readonly untuk koneksi database
+        private readonly DatabaseConnection _dbConnection;
 
         public UserQuery()
         {
-            db = new DatabaseConnection();
+            _dbConnection = new DatabaseConnection();
         }
 
+        // Memeriksa login user dengan username dan password
         public bool CheckLogin(string username, string password)
         {
             try
             {
-                db.Open();
-                string query = "SELECT COUNT(*) FROM users WHERE username = @username AND password = @password";
-                MySqlCommand cmd = new MySqlCommand(query, db.GetConnection());
-                cmd.Parameters.AddWithValue("@username", username);
-                cmd.Parameters.AddWithValue("@password", password);
+                _dbConnection.Open();
 
-                int count = Convert.ToInt32(cmd.ExecuteScalar());
-                return count > 0;
+                const string query = @"
+                    SELECT COUNT(*) 
+                    FROM users 
+                    WHERE username = @username 
+                    AND password = @password";
+
+                using (var command = new MySqlCommand(query, _dbConnection.GetConnection()))
+                {
+                    command.Parameters.AddWithValue("@username", username);
+                    command.Parameters.AddWithValue("@password", password);
+
+                    int count = Convert.ToInt32(command.ExecuteScalar());
+                    return count > 0;
+                }
             }
             catch (Exception ex)
             {
-                throw new Exception("Login error: " + ex.Message);
+                throw new Exception($"Gagal melakukan login. Error: {ex.Message}");
             }
             finally
             {
-                db.Close();
+                _dbConnection.Close();
             }
         }
     }

@@ -11,17 +11,20 @@ namespace Email_Manager.Views
     {
         private ContactController controller;
         private PictureBox picPhoto;
-        private DataTable originalData; // Menyimpan data asli lengkap
-
+        private DataTable originalData; // Stores complete original data
 
         public Form1()
         {
             InitializeComponent();
-            picPhoto = new PictureBox();
-            picPhoto.Size = new Size(150, 150);
-            picPhoto.Location = new Point(dataGridView1.Right + 10, dataGridView1.Top);
-            picPhoto.BorderStyle = BorderStyle.FixedSingle;
-            picPhoto.SizeMode = PictureBoxSizeMode.Zoom;
+
+            // Initialize and configure the photo display
+            picPhoto = new PictureBox
+            {
+                Size = new Size(150, 150),
+                Location = new Point(dataGridView1.Right + 10, dataGridView1.Top),
+                BorderStyle = BorderStyle.FixedSingle,
+                SizeMode = PictureBoxSizeMode.Zoom
+            };
             this.Controls.Add(picPhoto);
 
             controller = new ContactController();
@@ -63,11 +66,12 @@ namespace Email_Manager.Views
 
         private void LoadContacts(string category = "")
         {
-            if (category == "All Categories") category = "";
+            if (category == "All Categories")
+                category = "";
+
             originalData = controller.GetAllContacts(category);
             BindDataToGrid(originalData);
         }
-
 
         private void BindDataToGrid(DataTable dt)
         {
@@ -87,32 +91,28 @@ namespace Email_Manager.Views
             }
 
             dataGridView1.DataSource = dtWithNo;
-
             StyleGrid();
         }
 
-
-
-
         private void StyleGrid()
         {
-            // Atur properti umum
+            // Set general properties
             dataGridView1.EnableHeadersVisualStyles = false;
             dataGridView1.ReadOnly = true;
 
-            // Gaya header kolom
+            // Column header style
             dataGridView1.ColumnHeadersDefaultCellStyle.BackColor = Color.Gray;
             dataGridView1.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
             dataGridView1.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 10, FontStyle.Bold);
             dataGridView1.ColumnHeadersDefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleCenter;
 
-            // Gaya baris
+            // Row styles
             dataGridView1.RowsDefaultCellStyle.BackColor = Color.LightGray;
             dataGridView1.AlternatingRowsDefaultCellStyle.BackColor = Color.White;
             dataGridView1.DefaultCellStyle.SelectionBackColor = Color.SteelBlue;
             dataGridView1.DefaultCellStyle.SelectionForeColor = Color.White;
 
-            // Lebar kolom otomatis agar memenuhi tabel
+            // Auto-size columns to fit the table
             foreach (DataGridViewColumn column in dataGridView1.Columns)
             {
                 if (column.Name == "No")
@@ -127,7 +127,6 @@ namespace Email_Manager.Views
                 }
             }
         }
-
 
         private void dataGridView1_SelectionChanged(object sender, EventArgs e)
         {
@@ -155,19 +154,17 @@ namespace Email_Manager.Views
             {
                 DataRow row = originalData.Rows[e.RowIndex];
 
-                string name = row["Name"].ToString();
-                string email = row["Email"].ToString();
-                string phone = row["Phone"].ToString();
-                string notes = row["Notes"].ToString();
-                string category = row["Category"].ToString();
-                string photoPath = row["photo_path"].ToString();
-
-                FormContactDetail detailForm = new FormContactDetail(name, email, phone, notes, category, photoPath);
+                FormContactDetail detailForm = new FormContactDetail(
+                    row["Name"].ToString(),
+                    row["Email"].ToString(),
+                    row["Phone"].ToString(),
+                    row["Notes"].ToString(),
+                    row["Category"].ToString(),
+                    row["photo_path"].ToString()
+                );
                 detailForm.ShowDialog();
             }
         }
-
-
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
@@ -186,15 +183,15 @@ namespace Email_Manager.Views
                 {
                     DataRow row = originalData.Rows[selectedIndex];
 
-                    int id = Convert.ToInt32(row["id"]);
-                    string name = row["Name"].ToString();
-                    string email = row["Email"].ToString();
-                    string phone = row["Phone"].ToString();
-                    string notes = row["Notes"].ToString();
-                    string category = row["Category"].ToString();
-                    string photoPath = row["photo_path"].ToString();
-
-                    FormContact form = new FormContact(id, name, email, phone, notes, category, photoPath);
+                    FormContact form = new FormContact(
+                        Convert.ToInt32(row["id"]),
+                        row["Name"].ToString(),
+                        row["Email"].ToString(),
+                        row["Phone"].ToString(),
+                        row["Notes"].ToString(),
+                        row["Category"].ToString(),
+                        row["photo_path"].ToString()
+                    );
                     form.ShowDialog();
                     LoadContacts();
                     LoadCategories();
@@ -205,7 +202,6 @@ namespace Email_Manager.Views
                 MessageBox.Show("Pilih kontak yang ingin diedit.");
             }
         }
-
 
         private void btnDelete_Click(object sender, EventArgs e)
         {
@@ -229,14 +225,13 @@ namespace Email_Manager.Views
             }
         }
 
-
         private void btnSearch_Click(object sender, EventArgs e)
         {
             string category = cmbCategory.SelectedItem.ToString();
-            if (category == "All Categories") category = "";
+            if (category == "All Categories")
+                category = "";
 
-            string keyword = txtSearch.Text;
-            DataTable dt = controller.SearchContacts(keyword, category);
+            DataTable dt = controller.SearchContacts(txtSearch.Text, category);
             BindDataToGrid(dt);
         }
 
@@ -253,8 +248,10 @@ namespace Email_Manager.Views
 
         private void btnExportExcel_Click(object sender, EventArgs e)
         {
-            SaveFileDialog dialog = new SaveFileDialog();
-            dialog.Filter = "Excel Files (*.xlsx)|*.xlsx";
+            SaveFileDialog dialog = new SaveFileDialog
+            {
+                Filter = "Excel Files (*.xlsx)|*.xlsx"
+            };
 
             if (dialog.ShowDialog() == DialogResult.OK)
             {
@@ -270,6 +267,7 @@ namespace Email_Manager.Views
                     ws.Cell(1, 4).Value = "Notes";
                     ws.Cell(1, 5).Value = "Category";
 
+                    // Data rows
                     int row = 2;
                     foreach (DataRow dataRow in originalData.Rows)
                     {
@@ -281,6 +279,7 @@ namespace Email_Manager.Views
                         row++;
                     }
 
+                    // Formatting
                     ws.Range("A1:E1").Style.Font.Bold = true;
                     ws.Columns().AdjustToContents();
 
@@ -293,6 +292,5 @@ namespace Email_Manager.Views
                 }
             }
         }
-
     }
 }
