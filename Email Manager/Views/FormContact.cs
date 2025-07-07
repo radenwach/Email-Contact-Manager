@@ -2,16 +2,18 @@
 using System.Drawing;
 using System.IO;
 using System.Windows.Forms;
-using Email_Manager.Models;
+using Email_Manager.Controllers;
 
 namespace Email_Manager
 {
     public partial class FormContact : Form
     {
-        private string selectedPhotoPath = "";
-
+        /* ───── Field ─────────────────────────────────────────── */
+        private readonly ContactController controller = new ContactController();
+        private string selectedPhotoPath = string.Empty;
         private int contactId = -1;
 
+        /* ───── Constructor: tambah baru ───────────────────────── */
         public FormContact()
         {
             InitializeComponent();
@@ -19,90 +21,84 @@ namespace Email_Manager
             InitializeCategoryComboBox();
         }
 
-        // Overload constructor untuk mode edit
-        public FormContact(int id, string name, string email, string phone, string notes, string category, string photoPath)
+        /* ───── Constructor: mode edit ─────────────────────────── */
+        public FormContact(int id, string name, string email, string phone,
+                           string notes, string category, string photoPath) : this()
         {
-            InitializeComponent();
-            InitializePhotoComponents();
-
-            selectedPhotoPath = photoPath;
-            if (!string.IsNullOrEmpty(photoPath) && File.Exists(photoPath))
-            {
-                picPhoto.Image = Image.FromFile(photoPath);
-            }
-
-            InitializeCategoryComboBox();
-
             contactId = id;
+            selectedPhotoPath = photoPath;
+
+            if (!string.IsNullOrEmpty(photoPath) && File.Exists(photoPath))
+                picPhoto.Image = Image.FromFile(photoPath);
+
             txtName.Text = name;
             txtEmail.Text = email;
             txtPhone.Text = phone;
             txtNotes.Text = notes;
-            comboCategory.SelectedItem = category;
+
+            if (comboCategory.Items.Contains(category))
+                comboCategory.SelectedItem = category;
         }
 
-        // Komponen gambar & tombol upload
+       
         private void InitializePhotoComponents()
         {
+            
         }
 
-        // Upload gambar
+        /* ───── Isi Combo Kategori ─────────────────────────────── */
+        private void InitializeCategoryComboBox()
+        {
+            comboCategory.Items.Clear();
+            comboCategory.Items.AddRange(new[] { "Keluarga", "Teman", "Kerja", "Lainnya" });
+            comboCategory.DropDownStyle = ComboBoxStyle.DropDownList;
+            comboCategory.SelectedIndex = 0;
+        }
+
+        /* ───── Upload Foto ────────────────────────────────────── */
         private void BtnUploadPhoto_Click(object sender, EventArgs e)
         {
             using (OpenFileDialog ofd = new OpenFileDialog())
             {
                 ofd.Filter = "Image Files|*.jpg;*.jpeg;*.png;*.bmp";
-                if (ofd.ShowDialog() == DialogResult.OK)
-                {
-                    FileInfo fileInfo = new FileInfo(ofd.FileName);
-                    if (fileInfo.Length > 1_000_000) // max 1 MB
-                    {
-                        MessageBox.Show("Ukuran gambar maksimal 1 MB.", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                        return;
-                    }
+                if (ofd.ShowDialog() != DialogResult.OK) return;
 
-                    selectedPhotoPath = ofd.FileName;
-                    picPhoto.Image = Image.FromFile(selectedPhotoPath);
+                FileInfo fi = new FileInfo(ofd.FileName);
+                if (fi.Length > 1_000_000)
+                {
+                    MessageBox.Show("Ukuran gambar maksimal 1 MB.", "Peringatan", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
                 }
+
+                selectedPhotoPath = ofd.FileName;
+                picPhoto.Image = Image.FromFile(selectedPhotoPath);
             }
+
         }
 
-        // Salin gambar ke folder lokal dan kembalikan path barunya
-        private string CopyPhotoToLocalFolder(string originalPath)
+        /* ───── Salin Foto ke folder lokal aplikasi ────────────── */
+        private static string CopyPhotoToLocalFolder(string originalPath)
         {
             try
             {
                 if (string.IsNullOrEmpty(originalPath) || !File.Exists(originalPath))
-                    return "";
+                    return string.Empty;
 
-                string appPath = Application.StartupPath;
-                string photoDir = Path.Combine(appPath, "images");
+                string destDir = Path.Combine(Application.StartupPath, "images");
+                if (!Directory.Exists(destDir))
+                    Directory.CreateDirectory(destDir);
 
-                if (!Directory.Exists(photoDir))
-                    Directory.CreateDirectory(photoDir);
-
-                string fileName = Path.GetFileName(originalPath);
-                string newPath = Path.Combine(photoDir, fileName);
-
-                File.Copy(originalPath, newPath, true); // overwrite if exists
-                return newPath;
+                string destPath = Path.Combine(destDir, Path.GetFileName(originalPath));
+                File.Copy(originalPath, destPath, true);   // overwrite
+                return destPath;
             }
             catch
             {
-                return "";
+                return string.Empty;
             }
         }
 
-        // Combo kategori
-        private void InitializeCategoryComboBox()
-        {
-            comboCategory.Items.Clear();
-            comboCategory.Items.AddRange(new string[] { "Keluarga", "Teman", "Kerja", "Lainnya" });
-            comboCategory.DropDownStyle = ComboBoxStyle.DropDownList;
-            comboCategory.SelectedIndex = 0;
-        }
-
-        // Simpan atau update kontak
+        /* ───── Simpan / Update ────────────────────────────────── */
         private void btnSave_Click(object sender, EventArgs e)
         {
             string name = txtName.Text.Trim();
@@ -113,7 +109,8 @@ namespace Email_Manager
 
             if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(email))
             {
-                MessageBox.Show("Nama dan Email tidak boleh kosong!", "Validasi", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                MessageBox.Show("Nama dan Email tidak boleh kosong!", "Validasi",
+                                MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
@@ -121,43 +118,38 @@ namespace Email_Manager
             {
                 string photoPathToSave = CopyPhotoToLocalFolder(selectedPhotoPath);
 
-                ContactModel model = new ContactModel();
-                int savedId = model.SaveContact(
+                int savedId = controller.SaveContact(
                     contactId,
-                    name,
-                    email,
-                    phone,
-                    notes,
+                    name, email, phone, notes,
                     category,
                     photoPathToSave,
-                    LoggedInUser.Username
-                );
+                    LoggedInUser.Username);
 
-                string message = contactId == -1 ? "Kontak berhasil ditambahkan!" : "Kontak berhasil diperbarui!";
-                MessageBox.Show(message, "Sukses", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                this.Close();
+                string msg = contactId == -1
+                             ? "Kontak berhasil ditambahkan!"
+                             : "Kontak berhasil diperbarui!";
+                MessageBox.Show(msg, "Sukses",
+                                MessageBoxButtons.OK, MessageBoxIcon.Information);
+                Close();
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Error saat menyimpan kontak: " + ex.Message, "Kesalahan", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Error saat menyimpan kontak: " + ex.Message,
+                                "Kesalahan",
+                                MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
 
-        // Tutup form
-        private void btnCancel_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
+        /* ───── Tutup form tanpa simpan ────────────────────────── */
+        private void btnCancel_Click(object sender, EventArgs e) => Close();
 
-        private void button3_Click(object sender, EventArgs e)
-        {
-
-        }
+        /* ───── Tombol lain (jika ada) ─────────────────────────── */
+        private void button3_Click(object sender, EventArgs e) { }
     }
 
-    // Data login user
+    /* ───── Data login user (sementara) ───────────────────────── */
     public static class LoggedInUser
     {
-        public static string Username { get; set; }
+        public static string Username { get; set; } = "admin";
     }
 }
