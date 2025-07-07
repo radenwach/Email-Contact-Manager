@@ -165,7 +165,7 @@
   <ItemGroup>
     <Compile Include="Controllers\ContactController.cs" />
     <Compile Include="Models\ContactModel.cs" />
-    <Compile Include="Helpers\DatabaseConnection.cs" />
+    <Compile Include="Models\DatabaseConnection.cs" />
     <Compile Include="Models\UserQuery.cs" />
     <Compile Include="Views\Form1.cs">
       <SubType>Form</SubType>
